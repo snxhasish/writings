@@ -4,10 +4,101 @@ import Image from "next/image";
 import { portableTextToMarkdown } from "@portabletext/markdown";
 import Markdown from "@/components/markdown";
 import Navbar from "@/components/navbar";
-import { Button } from "@/components/ui/button";
-import { ArrowLeftIcon } from "lucide-react";
+import { Metadata } from "next";
 
-export default async function PostPage({ params, }: { params: { slug: string } }) {
+type Props = {
+    params: { slug: string };
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { slug } = await params;
+    const post = slug ? await getPostBySlug(slug) : null;
+
+    if (!post) {
+        return {
+            title: "Post Not Found",
+            description: "The requested blog post could not be found.",
+        };
+    }
+
+    const ogImage = post.mainImage?.asset
+        ? urlFor(post.mainImage).width(1200).height(630).url()
+        : undefined;
+
+    const markdown = portableTextToMarkdown(post.body);
+    const plainText = markdown
+        .replace(/[#*`\[\]]/g, "")
+        .replace(/\n+/g, " ")
+        .trim();
+    const description = plainText.length > 160
+        ? plainText.substring(0, 157) + "..."
+        : plainText;
+
+    const publishedTime = post.publishedAt
+        ? new Date(post.publishedAt).toISOString()
+        : undefined;
+
+    return {
+        title: post.title,
+        description: description || post.title,
+
+        authors: post.author?.name
+            ? [{ name: post.author.name }]
+            : undefined,
+
+        openGraph: {
+            type: "article",
+            title: post.title,
+            description: description || post.title,
+            url: `https://writings.snehasish.xyz/${slug}`,
+            siteName: "writings by snehasish",
+            images: ogImage ? [
+                {
+                    url: ogImage,
+                    width: 1200,
+                    height: 600,
+                    alt: post.mainImage?.alt || post.title,
+                },
+                {
+                    url: "https://snehasish.xyz/banner.png",
+                    width: 1200,
+                    height: 600,
+                    alt: "Banner",
+                },
+            ] : undefined,
+            publishedTime,
+            modifiedTime: post._updatedAt
+                ? new Date(post._updatedAt).toISOString()
+                : undefined,
+            authors: post.author?.name ? [post.author.name] : undefined,
+        },
+
+        twitter: {
+            card: "summary_large_image",
+            title: post.title,
+            description: description || post.title,
+            images: ogImage ? [ogImage] : undefined,
+            creator: "@snehasishxyz",
+        },
+
+        alternates: {
+            canonical: `https://writings.snehasish.xyz/${slug}`,
+        },
+
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                "max-image-preview": "large",
+                "max-snippet": -1,
+            },
+        },
+    };
+}
+
+export default async function PostPage({ params, }: Props) {
     const { slug } = await params;
     const post = slug ? await getPostBySlug(slug) : null;
 
