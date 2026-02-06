@@ -1,4 +1,4 @@
-import BlogCard from "./post-card";
+import PostCard from "./post-card";
 
 export default function PostPage({ posts }: { posts: any[] }) {
     return (
@@ -6,7 +6,7 @@ export default function PostPage({ posts }: { posts: any[] }) {
             <div className="w-full flex flex-col gap-5">
                 {
                     posts.map((post) => (
-                        <BlogCard
+                        <PostCard
                             key={post._id}
                             slug={post.slug.current}
                             title={post.title}
