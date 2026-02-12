@@ -10,6 +10,8 @@ type Props = {
     params: { slug: string };
 };
 
+export const revalidate = 60;
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
     const post = slug ? await getPostBySlug(slug) : null;

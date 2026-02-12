@@ -2,6 +2,8 @@ import PostPage from "@/components/post-page";
 import Navbar from "@/components/navbar";
 import { getAllPosts } from "@/queries/post";
 
+export const revalidate = 60;
+
 export default async function Page() {
     const posts = await getAllPosts();
 
