@@ -5,6 +5,7 @@ import { portableTextToMarkdown } from "@portabletext/markdown";
 import Markdown from "@/components/markdown";
 import Navbar from "@/components/navbar";
 import { Metadata } from "next";
+import { portableTextToMarkdownWithImages } from "@/lib/portable-text-markdown";
 
 type Props = {
     params: { slug: string };
@@ -104,7 +105,7 @@ export default async function PostPage({ params, }: Props) {
     const { slug } = await params;
     const post = slug ? await getPostBySlug(slug) : null;
 
-    const markdown = portableTextToMarkdown(post.body);
+    const markdown = portableTextToMarkdownWithImages(post.body);
 
     console.log(markdown)
 
@@ -136,7 +137,7 @@ export default async function PostPage({ params, }: Props) {
                     )}
                 </div>
 
-                {post.mainImage?.asset && (
+                {/* {post.mainImage?.asset && (
                     <Image
                         src={urlFor(post.mainImage).width(1200).url()}
                         alt={post.mainImage.alt || post.title}
@@ -144,7 +145,7 @@ export default async function PostPage({ params, }: Props) {
                         height={600}
                         className="w-full rounded-lg mb-8"
                     />
-                )}
+                )} */}
 
                 <div className="prose max-w-none">
                     <Markdown>
